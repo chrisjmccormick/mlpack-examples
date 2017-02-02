@@ -1,4 +1,9 @@
 /*
+ * ======== knn_example.cpp =========
+ * This very simple example takes a dataset of vectors and finds the nearest 
+ * neighbor for each data point. It uses the dataset both as the reference and
+ * the query vectors.
+ *
  * mlpack documentation is here:
  * http://www.mlpack.org/docs/mlpack-2.0.2/doxygen.php
  */
