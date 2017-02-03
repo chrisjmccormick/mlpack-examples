@@ -1,6 +1,11 @@
 /*
  * ======== reuters_example.cpp =========
+ * This example performs 1-NN classification on a portion of the Reuters 
+ * text classification dataset. 
  *
+ * The Reuters articles have already been converted into vector representations
+ * using Latent Dirichlet Allocation (LDA) with 128 topics. 
+ * 
  * mlpack documentation is here:
  * http://www.mlpack.org/docs/mlpack-2.0.2/doxygen.php
  */
@@ -16,7 +21,7 @@ using namespace mlpack::metric; // SquaredEuclideanDistance
 
 int main()
 {
-    // Armadillo is a C++ linear algebra library; mlpack uses its matrix data type.
+    // Load the dataset using Armadillo.
     arma::mat X_train;
     arma::mat y_train;
     arma::mat X_test;
@@ -24,23 +29,13 @@ int main()
 
     cout << "Loading Reuters Dataset..." << endl;
 
+    // The data is stored in Armadillo's default binary format.
     X_train.load("./reuters_dataset/X_train.mat");
     y_train.load("./reuters_dataset/y_train.mat");
     X_test.load("./reuters_dataset/X_test.mat");
-    y_test.load("./reuters_dataset/y_test.mat");
+    y_test.load("./reuters_dataset/y_test.mat");   
 
-    /*
-    data::Load("./reuters_dataset/X_train.csv", X_train, true);
-    data::Load("./reuters_dataset/y_train.csv", y_train, true);    
-    data::Load("./reuters_dataset/X_test.csv", X_test, true);
-    data::Load("./reuters_dataset/y_test.csv", y_test, true);
-    
-    X_train.save("./reuters_dataset/X_train.mat");
-    y_train.save("./reuters_dataset/y_train.mat");
-    X_test.save("./reuters_dataset/X_test.mat");
-    y_test.save("./reuters_dataset/y_test.mat");
-    */
-
+    // Display properties of the dataset.
     cout << "Number of training vectors: " << y_train.n_elem << ", test vectors: " << y_test.n_elem << endl;
 
     cout << "Training set size [" << X_train.n_rows << " x " << X_train.n_cols << "]" << endl;
@@ -48,15 +43,10 @@ int main()
     
 
     /* 
-     * Create a NeighborSearch model. The parameters of the model are specified
-     * with templates:
-     *  - Sorting method: "NearestNeighborSort" - This class sorts by increasing
-     *    distance.
-     *  - Distance metric: "ManhattanDistance" - The L1 distance, sum of absolute
-     *    distances.
-     *
-     * Pass the reference dataset (the vectors to be searched through) to the
-     * constructor.
+     * Create a NeighborSearch model from the training vectors, and set the 
+     * distance metric to SquaredEuclideanDistance.
+     * (For nearest neighbor classification, it's not necessary to perform the
+     * square-root step of the Euclidean distance calculation).
      */
     NeighborSearch<NearestNeighborSort, SquaredEuclideanDistance> nn(X_train);
 
@@ -74,7 +64,7 @@ int main()
 
     cout << endl << "Performing 1-NN classification...  ";
 
-    // Find the nearest neighbor for each test vector.
+    // Find the single nearest neighbor for each test vector.
     int k = 1;
     nn.Search(X_test, k, neighbors, distances);
 
@@ -82,8 +72,8 @@ int main()
     int numRight = 0;
 
     for (int i = 0; i < neighbors.n_elem; i++) {
-        // Predict the label for this query vector.
-        // Look up the label of the closest matching training sample.
+        // Predict the label for this query vector by looking up the label
+        // of the closest matching training sample.
         int p = y_train[neighbors[i]];
 
         // Track the number of correct predictions.
@@ -98,7 +88,5 @@ int main()
     float accuracy = (float) numRight / (float) y_test.n_elem * 100.0;
 
     printf("\n%d of %d correct (%.2f%%)\n\n", numRight, (int) y_test.n_elem, accuracy);
-
-
   
 }
