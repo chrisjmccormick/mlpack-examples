@@ -19,8 +19,11 @@ using namespace mlpack::neighbor; // NeighborSearch and NearestNeighborSort
 using namespace mlpack::metric; // SquaredEuclideanDistance
 
 
-int main()
+int main(int argc, char** argv)
 {
+    // This allows you to pass the --verbose flag to see timing information.
+    CLI::ParseCommandLine(argc, argv);
+
     // Load the dataset using Armadillo.
     arma::mat X_train;
     arma::mat y_train;
@@ -44,11 +47,18 @@ int main()
 
     /* 
      * Create a NeighborSearch model from the training vectors, and set the 
-     * distance metric to SquaredEuclideanDistance.
-     * (For nearest neighbor classification, it's not necessary to perform the
-     * square-root step of the Euclidean distance calculation).
+     * distance metric to SquaredEuclideanDistance. (For nearest neighbor 
+     * classification, where we are just *comparing* distances, it's not 
+     * necessary to perform the square-root step of the Euclidean distance 
+     * calculation).
+     *
+     * By default, NeighborSearch is going to construct a KDTree to perform
+     * the search. If you want to use no tree at all, you can set naive=true
+     * in the constructor (see the commented line).
      */
     NeighborSearch<NearestNeighborSort, SquaredEuclideanDistance> nn(X_train);
+    //NeighborSearch<NearestNeighborSort, SquaredEuclideanDistance> nn(X_train, true);
+
 
     /*
      * Create the matrices to hold the results of the search. 
