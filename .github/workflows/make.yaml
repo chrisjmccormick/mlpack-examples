@@ -1,0 +1,23 @@
+on:
+  push:
+  pull_request:
+
+name: make
+
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install libmlpack-dev
+        run: sudo apt-get install libmlpack-dev
+
+      - name: Install libensmallen-dev
+        run: sudo apt-get install libensmallen-dev
+
+      - name: Compile
+        run: g++ knn_example.cpp -o knn_example -std=c++11 -larmadillo -lmlpack -lboost_serialization
+
+      - name: Run
+        run: ./knn_example
